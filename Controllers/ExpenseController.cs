@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TripPlanner.DTO;
@@ -17,6 +18,7 @@ namespace TripPlanner.Controllers
             _context = context;
         }
 
+        [Authorize]
         [HttpPost("add")]
         public async Task<IActionResult> AddExpense([FromBody] Expense model)
         {
@@ -39,6 +41,8 @@ namespace TripPlanner.Controllers
                 });
             }
         }
+
+        [Authorize]
         [HttpGet("summary/{tripId}")]
         public async Task<IActionResult> GetSummary(int tripId)
         {

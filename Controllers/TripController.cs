@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TripPlanner.DTO;
 using TripPlanner.Model;
@@ -16,6 +17,7 @@ namespace TripPlanner.Controllers
             _context = context;
         }
 
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTrip([FromBody] TripCreateDto model)
         {
