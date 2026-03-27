@@ -19,6 +19,27 @@ namespace TripPlanner.Controllers
             _config = config;
         }
 
+        [HttpGet("test-db")]
+        public async Task<IActionResult> TestDbConnection()
+        {
+            try
+            {
+                using var conn = _context.Database.GetDbConnection();
+                await conn.OpenAsync();
+
+                return Ok("DB Connected Successfully ✅");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "DB Connection Failed ❌",
+                    error = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest model)
         {
