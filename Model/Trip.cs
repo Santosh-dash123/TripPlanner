@@ -2,7 +2,7 @@
 
 namespace TripPlanner.Model
 {
-    [Table("trips")]
+    [Table("TPTrips")]
     public class Trip
     {
         [Column("id")]

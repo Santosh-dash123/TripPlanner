@@ -2,7 +2,7 @@
 
 namespace TripPlanner.Model
 {
-    [Table("users")]
+    [Table("TPUsers")]
     public class User
     {
         [Column("id")]
@@ -17,5 +17,7 @@ namespace TripPlanner.Model
         public string? Role { get; set; }
         [Column("created_at")]
         public DateTime? CreatedAt { get; set; }
+        [Column("trip_id")]
+        public int? trip_id { get; set; }
     }
 }

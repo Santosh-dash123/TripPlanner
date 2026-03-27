@@ -27,6 +27,7 @@ namespace TripPlanner.Controllers
                 if (model == null)
                     return BadRequest("Invalid data");
 
+                model.CreatedAt = DateTime.Now;
                 await _context.Expenses.AddAsync(model);
                 await _context.SaveChangesAsync();
 
@@ -49,7 +50,7 @@ namespace TripPlanner.Controllers
             try
             {
                 var data = await _context.Set<ExpenseSummaryDto>()
-                    .FromSqlRaw("SELECT * FROM get_trip_summary({0})", tripId)
+                    .FromSqlRaw("EXEC TP_sp_GetTripSummary @TripId = {0}", tripId)
                     .AsNoTracking()
                     .ToListAsync();
 
@@ -60,6 +61,26 @@ namespace TripPlanner.Controllers
                 return StatusCode(500, new
                 {
                     message = "Error fetching summary",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("getitemtypes")]
+        public async Task<IActionResult> GetItemTypes()
+        {
+            try
+            {
+                var data = await _context.item_types.AsNoTracking().ToListAsync();
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Error fetching item types",
                     error = ex.Message
                 });
             }

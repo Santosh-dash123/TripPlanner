@@ -11,7 +11,7 @@ namespace TripPlanner.Model
         public DbSet<User> Users { get; set; }
         public DbSet<Trip> Trips { get; set; }
         public DbSet<Member> Members { get; set; }
-        public DbSet<ItemType> ItemTypes { get; set; }
+        public DbSet<item_types> item_types { get; set; }
         public DbSet<Expense> Expenses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

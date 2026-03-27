@@ -1,8 +1,11 @@
-﻿namespace TripPlanner.Model
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TripPlanner.Model
 {
-    public class ItemType
+    [Table("TPItem_Types")]
+    public class item_types
     {
-        public int? Id { get; set; }
-        public string? TypeName { get; set; }
+        public int? id { get; set; }
+        public string? type_name { get; set; }
     }
 }

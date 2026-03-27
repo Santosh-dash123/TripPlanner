@@ -4,10 +4,12 @@ namespace TripPlanner.DTO
 {
     public class ExpenseSummaryDto
     {
-        public string? item_name { get; set; }
-        public decimal? amount { get; set; }
-        public int? total_members { get; set; }
-        public decimal? per_person { get; set; }
-        public DateTimeOffset? created_at { get; set; }
+        public string? TripName { get; set; }
+        public string? ItemName { get; set; }
+        public string? ItemType { get; set; }
+        public decimal? Amount { get; set; }
+        public int? TotalMembers { get; set; }
+        public decimal? PerPersonAmount { get; set; }
+        public DateTime? Created_At { get; set; }
     }
 }

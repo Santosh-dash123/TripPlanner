@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Text.Json;
 using TripPlanner.DTO;
 using TripPlanner.Model;
 
@@ -17,66 +21,54 @@ namespace TripPlanner.Controllers
             _context = context;
         }
 
-        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTrip([FromBody] TripCreateDto model)
         {
             if (model == null || model.Members == null || !model.Members.Any())
-            {
                 return BadRequest("Invalid data");
-            }
-
-            await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                var trip = new Trip
+                var dt = new DataTable();
+                dt.Columns.Add("Name", typeof(string));
+                dt.Columns.Add("Email", typeof(string));
+                dt.Columns.Add("Address", typeof(string));
+                dt.Columns.Add("Role", typeof(string));
+                dt.Columns.Add("User_Id", typeof(int));
+
+                foreach (var m in model.Members)
                 {
-                    TripName = model.TripName,
-                    Location = model.Location,
-                    TripDate = model.TripDate,
-                    CreatedBy = model.CreatedBy
-                };
+                    dt.Rows.Add(m.Name, m.Email, m.Address, m.Role, 0);
+                }
 
-                _context.Trips.Add(trip);
-                await _context.SaveChangesAsync();
+                using var conn = _context.Database.GetDbConnection();
+                await conn.OpenAsync();
 
-                var users = model.Members.Select(m => new User
-                {
-                    Name = m.Name,
-                    Email = m.Email,
-                    Password = "member@1234",
-                    Role = m.Role
-                }).ToList();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "TP_SP_CreateTripWithMembers";
+                cmd.CommandType = CommandType.StoredProcedure;
 
-                await _context.Users.AddRangeAsync(users);
-                await _context.SaveChangesAsync();
+                cmd.Parameters.Add(new SqlParameter("@TripName", model.TripName));
+                cmd.Parameters.Add(new SqlParameter("@Location", model.Location));
+                cmd.Parameters.Add(new SqlParameter("@TripDate", model.TripDate));
+                cmd.Parameters.Add(new SqlParameter("@CreatedBy", model.CreatedBy));
 
-                var members = model.Members.Select((m, index) => new Member
-                {
-                    TripId = trip.Id,
-                    Name = m.Name,
-                    Email = m.Email,
-                    Address = m.Address,
-                    Role = m.Role,
-                    UserId = users[index].Id
-                }).ToList();
+                var memberParam = new SqlParameter("@Members", dt);
+                memberParam.SqlDbType = SqlDbType.Structured;
+                memberParam.TypeName = "TP_MemberType";
 
-                await _context.Members.AddRangeAsync(members);
-                await _context.SaveChangesAsync();
+                cmd.Parameters.Add(memberParam);
 
-                await transaction.CommitAsync();
+                var result = await cmd.ExecuteScalarAsync();
 
                 return Ok(new
                 {
                     message = "Trip Created Successfully",
-                    tripId = trip.Id
+                    tripId = Convert.ToInt32(result)
                 });
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-
                 return StatusCode(500, new
                 {
                     message = "Something went wrong",

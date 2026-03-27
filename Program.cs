@@ -13,11 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), o =>
-    {
-        o.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
-        o.CommandTimeout(300);
-    }));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddAuthentication(options =>
 {
@@ -88,12 +84,13 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
+//CORS must run before request reaches authentication/authorization
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseCors("AllowAll");
 
 var port = Environment.GetEnvironmentVariable("PORT");
 

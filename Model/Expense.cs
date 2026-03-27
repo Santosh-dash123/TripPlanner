@@ -2,9 +2,10 @@
 
 namespace TripPlanner.Model
 {
-    [Table("expenses")]
+    [Table("TPExpenses")]
     public class Expense
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int? Id { get; set; }
         [Column("trip_id")]
